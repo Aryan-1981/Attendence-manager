@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { attendanceRecords, students } from "@/lib/mock-data";
 import { toasts } from "@/lib/toasts";
+import { useCountUp } from "@/hooks/useCountUp";
 
 const user = {
   name: "Admin User",
@@ -119,6 +120,13 @@ export default function ProfilePage() {
   const totalDays = myRecords.length || 1;
   const attendanceRateNum = (presentDays / totalDays) * 100;
   const attendanceRate = attendanceRateNum.toFixed(1);
+
+  const animatedScore = useCountUp(Math.round(attendanceRateNum), { durationMs: 1300, delayMs: 120, decimals: 0 });
+  const animatedRate = useCountUp(Number(attendanceRate), { durationMs: 1300, delayMs: 180, decimals: 1 });
+  const animatedPresent = useCountUp(presentDays, { durationMs: 1100, delayMs: 220, decimals: 0 });
+  const animatedAbsent = useCountUp(absentDays, { durationMs: 1100, delayMs: 260, decimals: 0 });
+  const animatedLate = useCountUp(lateDays, { durationMs: 1100, delayMs: 300, decimals: 0 });
+
   const recentRecords = myRecords.slice(0, 10);
 
   const byDate = useMemo(() => {
@@ -256,7 +264,7 @@ export default function ProfilePage() {
               </div>
               <div className="text-right">
                 <p className="text-xs text-muted-foreground">Rate</p>
-                <p className="text-lg font-semibold tabular-nums">{attendanceRate}%</p>
+                <p className="text-lg font-semibold tabular-nums">{animatedRate.toFixed(1)}%</p>
               </div>
             </div>
 
@@ -293,7 +301,7 @@ export default function ProfilePage() {
                 </svg>
                 <div className="absolute inset-0 grid place-items-center">
                   <div className="text-center">
-                    <p className="text-3xl font-semibold tabular-nums">{Math.round(attendanceRateNum)}</p>
+                    <p className="text-3xl font-semibold tabular-nums">{animatedScore}</p>
                     <p className="text-xs text-muted-foreground">score</p>
                   </div>
                 </div>
@@ -301,19 +309,19 @@ export default function ProfilePage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="text-center p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-                  <p className="text-2xl font-bold font-mono text-emerald-500 tabular-nums">{presentDays}</p>
+                  <p className="text-2xl font-bold font-mono text-emerald-500 tabular-nums">{Math.round(animatedPresent)}</p>
                   <p className="text-[11px] text-muted-foreground mt-0.5">Present</p>
                 </div>
                 <div className="text-center p-3 rounded-xl bg-rose-500/10 border border-rose-500/20">
-                  <p className="text-2xl font-bold font-mono text-rose-500 tabular-nums">{absentDays}</p>
+                  <p className="text-2xl font-bold font-mono text-rose-500 tabular-nums">{Math.round(animatedAbsent)}</p>
                   <p className="text-[11px] text-muted-foreground mt-0.5">Absent</p>
                 </div>
                 <div className="text-center p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
-                  <p className="text-2xl font-bold font-mono text-amber-500 tabular-nums">{lateDays}</p>
+                  <p className="text-2xl font-bold font-mono text-amber-500 tabular-nums">{Math.round(animatedLate)}</p>
                   <p className="text-[11px] text-muted-foreground mt-0.5">Late</p>
                 </div>
                 <div className="text-center p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20">
-                  <p className="text-2xl font-bold font-mono text-indigo-500 tabular-nums">{attendanceRate}%</p>
+                  <p className="text-2xl font-bold font-mono text-indigo-500 tabular-nums">{animatedRate.toFixed(1)}%</p>
                   <p className="text-[11px] text-muted-foreground mt-0.5">Rate</p>
                 </div>
               </div>
