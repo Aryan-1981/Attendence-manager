@@ -37,7 +37,10 @@ import {
   SlidersHorizontal,
   X,
   Trash2,
-} from "lucide-react";
+  ChevronDown,
+  Clock,
+  IdCard,
+}  from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -83,6 +86,7 @@ export function AttendanceTable() {
   const [columns, setColumns] = useState(defaultColumns);
   const [columnsOpen, setColumnsOpen] = useState(false);
   const [selected, setSelected] = useState<Record<string, boolean>>({});
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   const visibleIds = useMemo(() => data.map((r) => r.id), [data]);
   const selectedIds = useMemo(() => Object.keys(selected).filter((id) => selected[id]), [selected]);
@@ -97,6 +101,10 @@ export function AttendanceTable() {
   };
 
   const clearSelection = () => setSelected({});
+
+  const toggleExpanded = (id: string) => {
+    setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
 
   const SortIcon = ({ field }: { field: SortField }) => {
     if (sortField !== field) return <ArrowUpDown className="w-3.5 h-3.5 ml-1 opacity-40" />;
