@@ -221,24 +221,7 @@
 .stagger-4 { animation-delay: 300ms; }
 .stagger-5 { animation-delay: 400ms; }
 
-/* Scrollbar styling */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: oklch(0.5 0.02 265 / 0.3);
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: oklch(0.5 0.02 265 / 0.5);
-}
+/* Scrollbar — canonical hover-reveal rules are defined further below. */
 
 /* Table row animations */
 .table-row-enter {
@@ -399,11 +382,7 @@ aside {
 }
 
 /* Premium focus ring (accent glow) */
-:where(a, button, input, textarea, select, [role="button"]) :focus-visible {
-  outline: none;
-}
-
-:where(a, button, input, textarea, select, [role="button"]):focus-visible {
+ :where(a, button, input, textarea, select, [role="button"]):focus-visible {
   box-shadow:
     0 0 0 1px color-mix(in oklab, var(--color-indigo) 55%, transparent),
     0 0 0 4px color-mix(in oklab, var(--color-indigo) 24%, transparent),
@@ -414,4 +393,69 @@ aside {
 button:active,
 [role="button"]:active {
   transform: translateY(0.5px) scale(0.98);
+}
+/* ------------------------------
+   Motion system (consistent feel)
+   ------------------------------ */
+:root {
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-1: 120ms;
+  --dur-2: 180ms;
+  --dur-3: 260ms;
+}
+
+.motion-default {
+  transition:
+    transform var(--dur-2) var(--ease-out-expo),
+    opacity var(--dur-2) var(--ease-out-expo),
+    background-color var(--dur-2) var(--ease-out-expo),
+    border-color var(--dur-2) var(--ease-out-expo),
+    box-shadow var(--dur-2) var(--ease-out-expo),
+    filter var(--dur-2) var(--ease-out-expo);
+}
+
+.page-enter {
+  animation: page-enter var(--dur-3) var(--ease-out-quint) both;
+}
+
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(10px) scale(0.995); filter: blur(2px); }
+  to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motion-default,
+  .page-enter {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* ------------------------------
+   Sonner toast polish (global)
+   ------------------------------ */
+[data-sonner-toaster] {
+  --toast-shadow: 0 10px 40px color-mix(in oklab, var(--foreground) 12%, transparent);
+}
+
+[data-sonner-toast] {
+  border-radius: 16px;
+  border: 1px solid color-mix(in oklab, var(--foreground) 14%, transparent);
+  background: color-mix(in oklab, var(--background) 88%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: var(--toast-shadow);
+}
+
+[data-sonner-toast][data-type="success"] {
+  border-color: color-mix(in oklab, var(--color-emerald) 30%, transparent);
+}
+
+[data-sonner-toast][data-type="error"] {
+  border-color: color-mix(in oklab, var(--color-rose) 30%, transparent);
+}
+
+[data-sonner-toast] [data-title] {
+  letter-spacing: -0.01em;
 }
