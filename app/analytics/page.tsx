@@ -5,7 +5,6 @@ import { BellRing, BarChart3, Sparkles, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toasts } from "@/lib/toasts";
-import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 function Bars() {
@@ -123,7 +122,7 @@ export default function AnalyticsPage() {
                   toasts.validationError("Enter an email address to join the waitlist.");
                   return;
                 }
-                toast.success("You’re on the list", { description: "We’ll email you when analytics launches." });
+                toasts.comingSoon("Analytics waitlist");
                 setEmail("");
               }}
             >
