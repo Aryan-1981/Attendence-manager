@@ -19,7 +19,7 @@ import {
   Trophy,
   Sparkles,
 } from "lucide-react";
-import { attendanceRecords, students } from "@/lib/mock-data";
+import { useAttendance } from "@/hooks/useAttendance";
 import { toasts } from "@/lib/toasts";
 import { useCountUp } from "@/hooks/useCountUp";
 
@@ -111,13 +111,12 @@ function Heatmap({ byDate }: { byDate: Record<string, "Present" | "Absent" | "La
 
 export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
+  const { data: myRecords, loading: attendanceLoading } = useAttendance({ initialPageSize: 1000 });
 
-  // Simulated personal attendance stats
-  const myRecords = attendanceRecords.filter((r) => r.studentId === students[0].id);
   const presentDays = myRecords.filter((r) => r.status === "Present").length;
   const absentDays = myRecords.filter((r) => r.status === "Absent").length;
   const lateDays = myRecords.filter((r) => r.status === "Late").length;
-  const totalDays = myRecords.length || 1;
+  const totalDays = Math.max(myRecords.length, 1);
   const attendanceRateNum = (presentDays / totalDays) * 100;
   const attendanceRate = attendanceRateNum.toFixed(1);
 

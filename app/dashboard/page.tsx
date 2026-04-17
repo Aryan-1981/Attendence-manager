@@ -8,9 +8,17 @@ import { QuickActions } from "@/components/dashboard/QuickActions";
 import { DepartmentBreakdownCard } from "@/components/dashboard/DepartmentBreakdownCard";
 import { TopPerformers } from "@/components/dashboard/TopPerformers";
 import { Users, UserCheck, UserX, TrendingUp } from "lucide-react";
-import { todayStats } from "@/lib/mock-data";
+import { useAttendance } from "@/hooks/useAttendance";
 
 export default function DashboardPage() {
+  const { data, totalRecords, loading } = useAttendance({ initialPageSize: 1000 });
+
+  const today = new Date().toISOString().slice(0, 10);
+  const presentToday = data.filter((r) => r.date === today && r.status === "Present").length;
+  const totalStudents = totalRecords;
+  const absentToday = 0;
+  const attendanceRate = totalStudents ? (presentToday / totalStudents) * 100 : 0;
+
   return (
     <div className="space-y-6">
       <WelcomeBanner />
@@ -19,59 +27,32 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <StatsCard
           title="Total Students"
-          value={todayStats.totalStudents}
+          value={loading ? 0 : totalStudents}
           icon={Users}
           color="indigo"
-          trend={{ value: 2.5, isPositive: true }}
           delay={0}
         />
         <StatsCard
           title="Present Today"
-          value={todayStats.presentToday}
+          value={loading ? 0 : presentToday}
           icon={UserCheck}
           color="emerald"
           suffix=""
-          trend={{
-            value: parseFloat(
-              (
-                ((todayStats.presentToday - todayStats.yesterdayPresent) /
-                  todayStats.yesterdayPresent) *
-                100
-              ).toFixed(1)
-            ),
-            isPositive: todayStats.presentToday > todayStats.yesterdayPresent,
-          }}
           delay={100}
         />
         <StatsCard
           title="Absent Today"
-          value={todayStats.absentToday}
+          value={loading ? 0 : absentToday}
           icon={UserX}
           color="rose"
-          trend={{
-            value: parseFloat(
-              (
-                ((todayStats.absentToday - todayStats.yesterdayAbsent) /
-                  todayStats.yesterdayAbsent) *
-                100
-              ).toFixed(1)
-            ),
-            isPositive: todayStats.absentToday < todayStats.yesterdayAbsent,
-          }}
           delay={200}
         />
         <StatsCard
           title="Attendance Rate"
-          value={todayStats.attendanceRate}
+          value={loading ? 0 : Number(attendanceRate.toFixed(1))}
           icon={TrendingUp}
           color="amber"
           suffix="%"
-          trend={{
-            value: parseFloat(
-              (todayStats.attendanceRate - todayStats.yesterdayRate).toFixed(1)
-            ),
-            isPositive: todayStats.attendanceRate > todayStats.yesterdayRate,
-          }}
           delay={300}
         />
       </div>

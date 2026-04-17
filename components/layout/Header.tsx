@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { Bell, Command, Search } from "lucide-react";
-import { students } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
@@ -19,7 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { toasts } from "@/lib/toasts";
-import { fuzzyScore, fuzzyFilterSort, highlightByIndices } from "@/lib/fuzzy";
+import { fuzzyFilterSort } from "@/lib/fuzzy";
 import { useLocalStorageState } from "@/hooks/useLocalStorageState";
 
 const routeTitles: Record<string, { title: string; breadcrumb: string }> = {
@@ -57,6 +56,48 @@ export function Header() {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const [recentIds, setRecentIds] = useLocalStorageState<string[]>("attendtrack.cmdk.recent", []);
+
+
+  type LiveStudent = { name: string; lastSeenAt?: string | null; deviceId?: string | null };
+  const [liveStudents, setLiveStudents] = useState<LiveStudent[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadStudents() {
+      try {
+        const res = await fetch("/api/attendance?limit=500", { cache: "no-store" });
+        const json = (await res.json().catch(() => ({}))) as any;
+        if (!res.ok) return;
+
+        const rows = Array.isArray(json?.data) ? json.data : [];
+        const seen = new Map<string, LiveStudent>();
+
+        for (const r of rows) {
+          const name = String(r?.name || "").trim();
+          if (!name) continue;
+          if (!seen.has(name)) {
+            seen.set(name, {
+              name,
+              lastSeenAt: r?.created_at ?? null,
+              deviceId: r?.device_id ?? null,
+            });
+          }
+        }
+
+        if (!cancelled) setLiveStudents(Array.from(seen.values()).slice(0, 50));
+      } catch {
+        // ignore
+      }
+    }
+
+    loadStudents();
+    const t = window.setInterval(loadStudents, 15_000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(t);
+    };
+  }, []);
 
   const pageItems: CommandItem[] = useMemo(
     () => [
@@ -121,17 +162,16 @@ export function Header() {
   );
 
   const studentItems: CommandItem[] = useMemo(() => {
-    // keep it fast — command palette will filter based on query
-    return students.slice(0, 50).map((s) => ({
-      id: `student-${s.id}`,
-      label: `${s.name} (${s.id})`,
+    return liveStudents.map((st) => ({
+      id: `student-${st.name.toLowerCase().replace(/\s+/g, "-")}`,
+      label: st.name,
       group: "Students",
-      keywords: `${s.name} ${s.id} ${s.department}`,
+      keywords: `${st.name} ${st.deviceId ?? ""}`,
       onSelect: () => {
-        toasts.comingSoon(`Student: ${s.name}`);
+        toasts.comingSoon(`Student: ${st.name}`);
       },
     }));
-  }, []);
+  }, [liveStudents]);
   const allItems = useMemo(() => {
     const uniq = new Map<string, CommandItem>();
     for (const item of [...pageItems, ...actionItems, ...studentItems]) uniq.set(item.id, item);
@@ -416,14 +456,26 @@ export function Header() {
                     ["Students", groups.Students],
                   ] as const
                 ).map(([label, items]) => {
-                  if (!items.length) return null;
+                  const emptyStudents = label === "Students" && !items.length && !query.trim();
+                  if (!items.length && !emptyStudents) return null;
                   return (
                     <div key={label} className="px-1">
                       <div className="px-2 py-2 text-[11px] uppercase tracking-wider text-muted-foreground">
                         {label}
                       </div>
-                      <div className="space-y-1">
-                        {items.map((item: CommandItem) => {
+
+                      {emptyStudents ? (
+                        <div className="px-2 pb-2">
+                          <div className="rounded-xl border border-border/60 bg-secondary/15 px-3 py-3">
+                            <div className="text-sm font-medium">No students yet</div>
+                            <div className="mt-1 text-xs text-muted-foreground">
+                              Students will appear here once the AMB82 Mini posts attendance.
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="space-y-1">
+                          {items.map((item: CommandItem) => {
                           const idx = flatForNav.findIndex((i) => i.id === item.id);
                           const active = idx === activeIndex;
                           return (
@@ -448,7 +500,8 @@ export function Header() {
                             </button>
                           );
                         })}
-                      </div>
+                        </div>
+                      )}
                     </div>
                   );
                 })}

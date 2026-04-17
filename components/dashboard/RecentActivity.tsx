@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { recentActivity } from "@/lib/mock-data";
-import type { ActivityItem } from "@/lib/mock-data";
+import { useAttendance } from "@/hooks/useAttendance";
 import { cn } from "@/lib/utils";
 import { CheckCircle2, Clock, LogIn, LogOut } from "lucide-react";
 
@@ -41,16 +40,11 @@ function toRelativeShort(ms: number) {
   return `${d}d`;
 }
 
-type LiveItem = ActivityItem & { timestamp: number };
-
-const baseLiveSeed: LiveItem[] = recentActivity.slice(0, 10).map((a, i) => ({
-  ...a,
-  // spread across the last ~35 minutes
-  timestamp: Date.now() - (i * 3 + 1) * 60_000,
-}));
+type LiveItem = { id: string; name: string; action: string; timestamp: number };
 
 export function RecentActivity() {
-  const [items, setItems] = useState<LiveItem[]>(baseLiveSeed);
+  const { data, loading } = useAttendance({ initialPageSize: 50 });
+  const [items, setItems] = useState<LiveItem[]>([]);
   const [pulseId, setPulseId] = useState<string | null>(null);
   const [tick, setTick] = useState(0);
 
@@ -60,24 +54,18 @@ export function RecentActivity() {
     return () => window.clearInterval(t);
   }, []);
 
-  // add new activity periodically (demo)
+  // Map attendance rows -> activity feed
   useEffect(() => {
-    const t = window.setInterval(() => {
-      const pick = recentActivity[Math.floor(Math.random() * recentActivity.length)]!;
-      const id = `act-live-${Date.now()}`;
-      const next: LiveItem = {
-        ...pick,
-        id,
-        timestamp: Date.now(),
-      };
-
-      setPulseId(id);
-      setItems((prev) => [next, ...prev].slice(0, 10));
-      window.setTimeout(() => setPulseId(null), 900);
-    }, 8_000);
-
-    return () => window.clearInterval(t);
-  }, []);
+    const next: LiveItem[] = data
+      .slice(0, 10)
+      .map((r) => ({
+        id: r.id,
+        name: r.studentName,
+        action: "Checked In",
+        timestamp: r.checkIn && r.checkIn !== "--:--" ? Date.now() : Date.now(),
+      }));
+    setItems(next);
+  }, [data]);
 
   const rendered = useMemo(() => {
     // `tick` exists to refresh the memo.
