@@ -5,13 +5,16 @@ import { StatsCard } from "@/components/dashboard/StatsCard";
 import { AttendanceChart } from "@/components/dashboard/AttendanceChart";
 import { RecentActivity } from "@/components/dashboard/RecentActivity";
 import { QuickActions } from "@/components/dashboard/QuickActions";
+import { DepartmentBreakdownCard } from "@/components/dashboard/DepartmentBreakdownCard";
+import { TopPerformers } from "@/components/dashboard/TopPerformers";
 import { Users, UserCheck, UserX, TrendingUp } from "lucide-react";
 import { todayStats } from "@/lib/mock-data";
 
 export default function DashboardPage() {
   return (
-      <div className="space-y-6">
+    <div className="space-y-6">
       <WelcomeBanner />
+
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <StatsCard
@@ -83,48 +86,14 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-1">
+      {/* Quick Actions + Highlights */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
+        <div className="lg:col-span-1 space-y-4">
           <QuickActions />
+          <TopPerformers />
         </div>
         <div className="lg:col-span-2">
-          {/* Department Overview */}
-          <div
-            className="rounded-xl border border-border/50 p-5 glass h-full"
-            style={{ opacity: 0, animation: "fade-in 0.5s ease-out 500ms forwards" }}
-          >
-            <h3 className="text-base font-semibold mb-4">Department Breakdown</h3>
-            <div className="space-y-3">
-              {[
-                { name: "Computer Science", present: 45, total: 52, color: "bg-indigo-500" },
-                { name: "Electrical Engineering", present: 38, total: 45, color: "bg-emerald-500" },
-                { name: "Business Administration", present: 32, total: 40, color: "bg-amber-500" },
-                { name: "Mechanical Engineering", present: 28, total: 35, color: "bg-cyan-500" },
-                { name: "Data Science", present: 35, total: 38, color: "bg-violet-500" },
-                { name: "Information Technology", present: 35, total: 38, color: "bg-rose-500" },
-              ].map((dept) => {
-                const pct = Math.round((dept.present / dept.total) * 100);
-                return (
-                  <div key={dept.name} className="space-y-1.5">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">{dept.name}</span>
-                      <span className="font-mono font-medium text-xs">
-                        {dept.present}/{dept.total}{" "}
-                        <span className="text-muted-foreground">({pct}%)</span>
-                      </span>
-                    </div>
-                    <div className="h-1.5 bg-secondary/50 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full rounded-full ${dept.color} transition-all duration-1000 ease-out`}
-                        style={{ width: `${pct}%` }}
-                      />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+          <DepartmentBreakdownCard />
         </div>
       </div>
     </div>
