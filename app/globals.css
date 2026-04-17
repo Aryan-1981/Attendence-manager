@@ -381,8 +381,8 @@ aside {
   background-clip: content-box;
 }
 
-/* Premium focus ring (accent glow) */
- :where(a, button, input, textarea, select, [role="button"]):focus-visible {
+/* Premium focus ring (accent glow) */:where(a, button, input, textarea, select, [role="button"]):focus-visible {
+  outline: none;
   box-shadow:
     0 0 0 1px color-mix(in oklab, var(--color-indigo) 55%, transparent),
     0 0 0 4px color-mix(in oklab, var(--color-indigo) 24%, transparent),
