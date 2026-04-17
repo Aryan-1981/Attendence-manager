@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import type { LucideIcon } from "lucide-react";
+import { useCountUp } from "@/hooks/useCountUp";
 
 interface StatsCardProps {
   title: string;
@@ -53,44 +54,13 @@ const colorMap = {
   },
 } as const;
 
-function useCountUp(target: number, duration = 1500, delay = 0) {
-  const [count, setCount] = useState(0);
-  const startTime = useRef<number | null>(null);
-  const animationFrame = useRef<number>(0);
-
-  useEffect(() => {
-    const timeout = window.setTimeout(() => {
-      const animate = (timestamp: number) => {
-        if (!startTime.current) startTime.current = timestamp;
-        const elapsed = timestamp - startTime.current;
-        const progress = Math.min(elapsed / duration, 1);
-
-        // easeOutExpo
-        const eased = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-        setCount(Math.floor(eased * target * 10) / 10);
-
-        if (progress < 1) {
-          animationFrame.current = requestAnimationFrame(animate);
-        } else {
-          setCount(target);
-        }
-      };
-
-      animationFrame.current = requestAnimationFrame(animate);
-    }, delay);
-
-    return () => {
-      clearTimeout(timeout);
-      cancelAnimationFrame(animationFrame.current);
-      startTime.current = null;
-    };
-  }, [target, duration, delay]);
-
-  return count;
-}
 
 export function StatsCard({ title, value, icon: Icon, color, suffix = "", trend, delay = 0 }: StatsCardProps) {
-  const animatedValue = useCountUp(value, 1500, delay);
+  const animatedValue = useCountUp(value, {
+    durationMs: 1500,
+    delayMs: delay,
+    decimals: suffix === "%" ? 1 : 0,
+  });
   const colors = colorMap[color];
 
   const cardRef = useRef<HTMLDivElement | null>(null);
