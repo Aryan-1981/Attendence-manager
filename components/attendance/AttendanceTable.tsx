@@ -273,10 +273,38 @@ export function AttendanceTable() {
       </div>
 
       {/* Table */}
+      {/* Mobile bulk actions */}
+      <div className="md:hidden flex items-center justify-between gap-2">
+        <p className="text-xs text-muted-foreground">{selectedIds.length ? `${selectedIds.length} selected` : `Showing ${data.length} of ${totalRecords}`}</p>
+        <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-9 rounded-xl border-border/60"
+            onClick={() => toggleAllVisible(!allVisibleSelected)}
+            disabled={data.length === 0}
+          >
+            {allVisibleSelected ? "Clear page" : "Select page"}
+          </Button>
+          {selectedIds.length > 0 && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-9 rounded-xl"
+              onClick={clearSelection}
+            >
+              Clear
+            </Button>
+          )}
+        </div>
+      </div>
+
       {/* Mobile: Card view */}
       <div className="md:hidden space-y-2">
         {data.length === 0 ? (
-          <div className="hidden md:block rounded-2xl border border-border/50 overflow-hidden glass">
+          <div className="rounded-2xl border border-border/50 overflow-hidden glass">
             <div className="h-[240px] flex flex-col items-center justify-center text-center px-6">
               <div className="w-14 h-14 rounded-full bg-muted/50 flex items-center justify-center mb-3">
                 <FileX className="w-7 h-7 text-muted-foreground/50" />

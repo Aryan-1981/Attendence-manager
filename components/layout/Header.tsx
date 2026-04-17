@@ -305,7 +305,7 @@ export function Header() {
             >
               <Search className="h-4 w-4" />
               <span>Search</span>
-              <span className="ml-1 text-[10px] text-muted-foreground/80">⌘K</span>
+              <span className="ml-1 hidden sm:inline text-[10px] text-muted-foreground/80">⌘K</span>
             </button>
 
             {/* Notifications */}
