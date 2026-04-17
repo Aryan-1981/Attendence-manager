@@ -42,7 +42,7 @@ import {
   IdCard,
 }  from "lucide-react";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
+import { toasts } from "@/lib/toasts";
 
 type SortField = "studentName" | "date" | "checkIn" | "checkOut" | "status";
 
@@ -116,18 +116,12 @@ export function AttendanceTable() {
   };
 
   const handleExport = () => {
-    toast.loading("Exporting attendance data...", { duration: 1400 });
-    setTimeout(() => toast.success("Export complete! File downloaded."), 1400);
+    const id = toasts.exportStarted("Attendance export");
+    setTimeout(() => toasts.exportSuccess(id, "Attendance export"), 1400);
   };
 
   const handleBulkDelete = () => {
-    toast("Bulk action", {
-      description: `Pretending to delete ${selectedIds.length} record(s).`,
-      action: {
-        label: "Undo",
-        onClick: () => toast.message("Restored"),
-      },
-    });
+    toasts.comingSoon(`Bulk delete ( selected)`);
     clearSelection();
   };
 
@@ -434,11 +428,7 @@ export function AttendanceTable() {
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8"
-                            onClick={() =>
-                              toast(`Details for ${record.studentName}`, {
-                                description: `${record.status} on ${record.date}`,
-                              })
-                            }
+                            onClick={() => toasts.comingSoon(`Details: `)}
                           >
                             <Eye className="w-4 h-4 text-muted-foreground" />
                           </Button>

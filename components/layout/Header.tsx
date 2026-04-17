@@ -18,7 +18,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { toast } from "sonner";
+import { toasts } from "@/lib/toasts";
 
 const routeTitles: Record<string, { title: string; breadcrumb: string }> = {
   "/dashboard": { title: "Dashboard", breadcrumb: "Home / Dashboard" },
@@ -89,9 +89,7 @@ export function Header() {
         group: "Actions",
         keywords: "check in check out",
         onSelect: () => {
-          toast("Mark Attendance", {
-            description: "Demo action — connect to device or backend to mark attendance.",
-          });
+          toasts.comingSoon("Mark Attendance");
         },
       },
       {
@@ -100,7 +98,8 @@ export function Header() {
         group: "Actions",
         keywords: "download csv",
         onSelect: () => {
-          toast("Exporting…", { description: "Preparing your export (demo)." });
+          const id = toasts.exportStarted("Export");
+          window.setTimeout(() => toasts.exportSuccess(id, "Export"), 900);
         },
       },
       {
@@ -110,7 +109,7 @@ export function Header() {
         keywords: "dark light",
         onSelect: () => {
           // the ThemeToggle is in header; we just show a toast here
-          toast("Theme", { description: "Use the toggle in the top-right." });
+          toasts.comingSoon("Theme toggle");
         },
       },
     ],
@@ -125,7 +124,7 @@ export function Header() {
       group: "Students",
       keywords: `${s.name} ${s.id} ${s.department}`,
       onSelect: () => {
-        toast("Student", { description: `${s.name} — details view coming soon.` });
+        toasts.comingSoon(`Student: ${s.name}`);
       },
     }));
   }, []);
@@ -306,7 +305,7 @@ export function Header() {
                   Profile
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onClick={() => toast("Settings", { description: "Coming soon." })}
+                  onClick={() => toasts.comingSoon("Settings")}
                   className="cursor-pointer"
                 >
                   Settings

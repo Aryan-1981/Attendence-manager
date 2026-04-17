@@ -11,6 +11,12 @@ export const toasts = {
     });
   },
 
+  success(title: string, description?: string) {
+    return toast.success(title, {
+      description,
+    });
+  },
+
   exportStarted(label = "Export") {
     const id = toast.loading(`${label} in progress…`);
     return id;

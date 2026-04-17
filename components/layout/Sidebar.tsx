@@ -15,7 +15,7 @@ import {
   Settings,
   User,
 } from "lucide-react";
-import { toast } from "sonner";
+import { toasts } from "@/lib/toasts";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -89,9 +89,7 @@ export function Sidebar() {
             const handleClick = (e: React.MouseEvent) => {
               if (item.comingSoon) {
                 e.preventDefault();
-                toast(`${item.label} — Coming Soon`, {
-                  description: "This feature is under development.",
-                });
+                toasts.comingSoon(item.label);
               }
             };
 

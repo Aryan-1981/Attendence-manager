@@ -20,7 +20,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { attendanceRecords, students } from "@/lib/mock-data";
-import { toast } from "sonner";
+import { toasts } from "@/lib/toasts";
 
 const user = {
   name: "Admin User",
@@ -139,11 +139,10 @@ export default function ProfilePage() {
   );
 
   const downloadReport = async () => {
-    const id = toast.loading("Preparing report…");
+    const id = toasts.exportStarted("Report");
     await new Promise((r) => setTimeout(r, 900));
-    toast.message("Generating PDF…", { id });
     await new Promise((r) => setTimeout(r, 900));
-    toast.success("Report ready", { id, description: "Downloaded to your device." });
+    toasts.exportSuccess(id, "Report");
   };
 
   return (
@@ -177,7 +176,7 @@ export default function ProfilePage() {
                 type="button"
                 className="absolute -bottom-2 -right-2 w-9 h-9 bg-background/70 border border-border/60 rounded-full grid place-items-center hover:bg-background/90 transition-colors"
                 aria-label="Change avatar"
-                onClick={() => toast.message("Avatar upload coming soon")}
+                onClick={() => toasts.comingSoon("Avatar upload")}
               >
                 <Camera className="w-4 h-4 text-muted-foreground" />
               </button>
@@ -231,7 +230,7 @@ export default function ProfilePage() {
               type="button"
               onClick={() => {
                 setIsEditing(!isEditing);
-                if (isEditing) toast.success("Profile updated successfully");
+                if (isEditing) toasts.success("Profile updated", "Your changes have been saved.");
               }}
               className="bg-indigo-500 hover:bg-indigo-600 text-white gap-2"
             >
@@ -396,7 +395,7 @@ export default function ProfilePage() {
                 type="button"
                 variant="outline"
                 className="h-9 gap-2"
-                onClick={() => toast.message("Export attendance coming soon")}
+                onClick={() => toasts.comingSoon("Attendance export")}
               >
                 <Download className="h-4 w-4" />
                 Export
