@@ -175,6 +175,13 @@
   100% { background-position: 200% 0; }
 }
 
+@keyframes loading-bar {
+  0% { transform: translateX(-110%); }
+  60% { transform: translateX(60%); }
+  100% { transform: translateX(220%); }
+}
+
+
 /* Glassmorphism utility */
 .glass {
   background: rgba(255, 255, 255, 0.03);
