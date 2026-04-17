@@ -5,6 +5,7 @@ import { Providers } from "@/components/Providers";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { MobileNav } from "@/components/layout/MobileNav";
+import { ScrollToTop } from "@/components/layout/ScrollToTop";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -55,6 +56,9 @@ export default function RootLayout({
 
           {/* Mobile Nav */}
           <MobileNav />
+
+          /* Scroll to top */
+          <ScrollToTop />
         </Providers>
       </body>
     </html>
