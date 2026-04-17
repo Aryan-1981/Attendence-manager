@@ -1,5 +1,6 @@
 "use client";
 
+import { WelcomeBanner } from "@/components/dashboard/WelcomeBanner";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { AttendanceChart } from "@/components/dashboard/AttendanceChart";
 import { RecentActivity } from "@/components/dashboard/RecentActivity";
@@ -9,7 +10,8 @@ import { todayStats } from "@/lib/mock-data";
 
 export default function DashboardPage() {
   return (
-    <div className="space-y-6">
+      <div className="space-y-6">
+      <WelcomeBanner />
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <StatsCard
