@@ -77,8 +77,9 @@ export function AttendanceChart() {
         </div>
       </div>
 
-      <div className="h-[280px] w-full">
-        <ResponsiveContainer width="100%" height="100%">
+      <div className="h-[280px] w-full min-h-[280px] min-w-0">
+        <div className="h-full w-full min-h-[280px] min-w-0">
+          <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} barGap={4} barSize={20}>
             <CartesianGrid
               strokeDasharray="3 3"
@@ -103,7 +104,8 @@ export function AttendanceChart() {
             <Bar dataKey="present" fill="#6366F1" radius={[4, 4, 0, 0]} />
             <Bar dataKey="absent" fill="#F43F5E" radius={[4, 4, 0, 0]} />
           </BarChart>
-        </ResponsiveContainer>
+          </ResponsiveContainer>
+        </div>
       </div>
 
       {/* Legend */}
