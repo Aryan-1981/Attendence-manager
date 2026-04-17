@@ -273,7 +273,133 @@ export function AttendanceTable() {
       </div>
 
       {/* Table */}
-      <div className="rounded-2xl border border-border/50 overflow-hidden glass">
+      {/* Mobile: Card view */}
+      <div className="md:hidden space-y-2">
+        {data.length === 0 ? (
+          <div className="hidden md:block rounded-2xl border border-border/50 overflow-hidden glass">
+            <div className="h-[240px] flex flex-col items-center justify-center text-center px-6">
+              <div className="w-14 h-14 rounded-full bg-muted/50 flex items-center justify-center mb-3">
+                <FileX className="w-7 h-7 text-muted-foreground/50" />
+              </div>
+              <p className="text-sm font-medium text-muted-foreground">No records found</p>
+              <p className="text-xs text-muted-foreground/70 mt-1">Try adjusting your search or filters</p>
+            </div>
+          </div>
+        ) : (
+          data.map((record, index) => {
+            const isSelected = Boolean(selected[record.id]);
+            const isExpanded = Boolean(expanded[record.id]);
+
+            return (
+              <div
+                key={record.id}
+                className={cn(
+                  "rounded-2xl border border-border/50 glass overflow-hidden transition-colors",
+                  isSelected && "bg-indigo-500/5"
+                )}
+                style={{ animationDelay: `${index * 20}ms` }}
+              >
+                <div className="p-3">
+                  <div className="flex items-start gap-3">
+                    <div className="pt-1">
+                      <Checkbox
+                        checked={isSelected}
+                        onCheckedChange={(v) => setSelected((prev) => ({ ...prev, [record.id]: v }))}
+                        aria-label={`Select ${record.studentName}`}
+                      />
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-[10px] font-bold shrink-0">
+                              {record.studentAvatar}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-sm font-semibold truncate">{record.studentName}</p>
+                              <p className="text-[11px] text-muted-foreground font-mono truncate">{record.studentId}</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0">
+                          <StatusBadge status={record.status} />
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-10 w-10 rounded-2xl"
+                            onClick={() => toasts.comingSoon(`Details: ${record.studentName} (${record.studentId})`)}
+                            aria-label={`View details for ${record.studentName}`}
+                          >
+                            <Eye className="h-4 w-4 text-muted-foreground" />
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+                        <div className="rounded-xl border border-border/50 bg-secondary/20 px-2.5 py-2">
+                          <div className="flex items-center gap-1.5 text-muted-foreground">
+                            <Calendar className="h-3.5 w-3.5" />
+                            <span>Date</span>
+                          </div>
+                          <div className="mt-1 font-medium text-foreground/90">{record.date}</div>
+                        </div>
+                        <div className="rounded-xl border border-border/50 bg-secondary/20 px-2.5 py-2">
+                          <div className="flex items-center gap-1.5 text-muted-foreground">
+                            <Clock className="h-3.5 w-3.5" />
+                            <span>Duration</span>
+                          </div>
+                          <div className="mt-1 font-mono text-foreground/90">{record.duration}</div>
+                        </div>
+                        <div className="rounded-xl border border-border/50 bg-secondary/20 px-2.5 py-2">
+                          <div className="flex items-center gap-1.5 text-muted-foreground">
+                            <IdCard className="h-3.5 w-3.5" />
+                            <span>Check-in</span>
+                          </div>
+                          <div className="mt-1 font-mono text-foreground/90">{record.checkIn}</div>
+                        </div>
+                        <div className="rounded-xl border border-border/50 bg-secondary/20 px-2.5 py-2">
+                          <div className="flex items-center gap-1.5 text-muted-foreground">
+                            <IdCard className="h-3.5 w-3.5" />
+                            <span>Check-out</span>
+                          </div>
+                          <div className="mt-1 font-mono text-foreground/90">{record.checkOut}</div>
+                        </div>
+                      </div>
+
+                      <div className="mt-3">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="w-full h-10 rounded-xl gap-2 border-border/60"
+                          onClick={() => toggleExpanded(record.id)}
+                          aria-expanded={isExpanded}
+                        >
+                          <ChevronDown className={cn("h-4 w-4 transition-transform", isExpanded && "rotate-180")} />
+                          {isExpanded ? "Hide details" : "More details"}
+                        </Button>
+
+                        {isExpanded && (
+                          <div className="mt-2 rounded-xl border border-border/50 bg-background/35 p-3 text-xs text-muted-foreground">
+                            <div className="flex items-center justify-between">
+                              <span>Record ID</span>
+                              <span className="font-mono text-foreground/80">{record.id}</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      <div className="hidden md:block rounded-2xl border border-border/50 overflow-hidden glass">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader className="sticky top-0 z-10 bg-background/60 backdrop-blur supports-[backdrop-filter]:bg-background/40">
@@ -427,8 +553,8 @@ export function AttendanceTable() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8"
-                            onClick={() => toasts.comingSoon(`Details:  ()`)}
+                            className="h-9 w-9 md:h-8 md:w-8"
+                            onClick={() => toasts.comingSoon(`Details: ${record.studentName} (${record.studentId})`)}
                           >
                             <Eye className="w-4 h-4 text-muted-foreground" />
                           </Button>
@@ -453,18 +579,20 @@ export function AttendanceTable() {
             <Button
               variant="outline"
               size="icon"
-              className="h-8 w-8"
+              className="h-9 w-9 md:h-8 md:w-8"
               onClick={() => setCurrentPage(1)}
               disabled={currentPage === 1}
+              aria-label="First page"
             >
               <ChevronsLeft className="w-4 h-4" />
             </Button>
             <Button
               variant="outline"
               size="icon"
-              className="h-8 w-8"
+              className="h-9 w-9 md:h-8 md:w-8"
               onClick={() => setCurrentPage(currentPage - 1)}
               disabled={currentPage === 1}
+              aria-label="Previous page"
             >
               <ChevronLeft className="w-4 h-4" />
             </Button>
@@ -489,7 +617,7 @@ export function AttendanceTable() {
                     variant={currentPage === page ? "default" : "outline"}
                     size="icon"
                     className={cn(
-                      "h-8 w-8 text-xs",
+                      "h-9 w-9 md:h-8 md:w-8 text-xs",
                       currentPage === page && "bg-indigo-500 hover:bg-indigo-600 text-white"
                     )}
                     onClick={() => setCurrentPage(page)}
@@ -503,18 +631,20 @@ export function AttendanceTable() {
             <Button
               variant="outline"
               size="icon"
-              className="h-8 w-8"
+              className="h-9 w-9 md:h-8 md:w-8"
               onClick={() => setCurrentPage(currentPage + 1)}
               disabled={currentPage === totalPages}
+              aria-label="Next page"
             >
               <ChevronRight className="w-4 h-4" />
             </Button>
             <Button
               variant="outline"
               size="icon"
-              className="h-8 w-8"
+              className="h-9 w-9 md:h-8 md:w-8"
               onClick={() => setCurrentPage(totalPages)}
               disabled={currentPage === totalPages}
+              aria-label="Last page"
             >
               <ChevronsRight className="w-4 h-4" />
             </Button>

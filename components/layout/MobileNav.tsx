@@ -70,6 +70,7 @@ export function MobileNav() {
             <Link
               key={item.href}
               href={item.href}
+              aria-current={isActive ? "page" : undefined}
               onPointerDown={() => onPress(item.href)}
               onPointerUp={clearPressed}
               onPointerCancel={clearPressed}
@@ -77,7 +78,7 @@ export function MobileNav() {
                 "relative flex flex-col items-center justify-center gap-1",
                 "w-full h-full",
                 "transition-[color,transform] duration-200",
-                isPressed && "scale-[0.98]",
+                isPressed && "scale-[0.975] translate-y-[0.5px]",
                 isActive ? "text-foreground" : "text-muted-foreground"
               )}
             >
@@ -86,10 +87,10 @@ export function MobileNav() {
                 aria-hidden
                 className={cn(
                   "absolute -top-1 left-1/2 -translate-x-1/2",
-                  "h-0.5 w-10 rounded-full",
+                  "h-0.5 w-10 rounded-full scale-90",
                   "bg-gradient-to-r from-indigo-500/0 via-indigo-500/85 to-indigo-500/0",
-                  "opacity-0 transition-opacity duration-300",
-                  isActive && "opacity-100"
+                  "opacity-0 transition-[opacity,transform] duration-300",
+                  isActive && "opacity-100 scale-100"
                 )}
               />
 

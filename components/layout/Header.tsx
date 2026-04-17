@@ -254,12 +254,12 @@ export function Header() {
 
   return (
     <>
-      <header className={cn("sticky top-0 z-30 h-16 glass", "border-b border-border/50", "relative")}> 
+      <header className={cn("sticky top-0 z-30 h-14 md:h-16 glass", "border-b border-border/50", "relative")}> 
         <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent" />
         <div className="flex items-center justify-between h-full px-4 md:px-6">
           {/* Left: Title & Breadcrumb */}
           <div className="flex flex-col">
-            <h1 className="text-lg font-semibold tracking-tight">{route.title}</h1>
+            <h1 className="text-base md:text-lg font-semibold tracking-tight">{route.title}</h1>
             <p className="text-xs text-muted-foreground hidden sm:block">{route.breadcrumb}</p>
           </div>
 
@@ -291,15 +291,22 @@ export function Header() {
           {/* Right: Actions */}
           <div className="flex items-center gap-1.5">
             {/* Mobile search */}
-            <Button
-              variant="ghost"
-              size="icon"
+            <button
+              type="button"
               onClick={() => setOpen(true)}
-              className="h-9 w-9 md:hidden rounded-xl"
-              aria-label="Open search"
+              className={cn(
+                "md:hidden h-9 rounded-xl px-3",
+                "inline-flex items-center gap-2",
+                "border border-border/50 bg-secondary/35 hover:bg-secondary/50",
+                "text-sm text-muted-foreground",
+                "transition-all press"
+              )}
+              aria-label="Open command palette"
             >
-              <Search className="w-4 h-4" />
-            </Button>
+              <Search className="h-4 w-4" />
+              <span>Search</span>
+              <span className="ml-1 text-[10px] text-muted-foreground/80">⌘K</span>
+            </button>
 
             {/* Notifications */}
             <DropdownMenu>
