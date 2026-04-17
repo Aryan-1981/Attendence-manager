@@ -121,7 +121,7 @@ export function AttendanceTable() {
   };
 
   const handleBulkDelete = () => {
-    toasts.comingSoon(`Bulk delete ( selected)`);
+    toasts.comingSoon(`Bulk delete (${selectedIds.length} selected)`);
     clearSelection();
   };
 
@@ -428,7 +428,7 @@ export function AttendanceTable() {
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8"
-                            onClick={() => toasts.comingSoon(`Details: `)}
+                            onClick={() => toasts.comingSoon(`Details:  ()`)}
                           >
                             <Eye className="w-4 h-4 text-muted-foreground" />
                           </Button>
