@@ -6,6 +6,7 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { ScrollToTop } from "@/components/layout/ScrollToTop";
+import { PageTransition } from "@/components/layout/PageTransition";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -48,7 +49,11 @@ export default function RootLayout({
               <Header />
               <main className="flex-1 overflow-y-auto grid-pattern">
                 <div className="p-4 md:p-6 pb-20 md:pb-6">
+                  <PageTransition>
+                  <PageTransition>
                   {children}
+                </PageTransition>
+                </PageTransition>
                 </div>
               </main>
             </div>

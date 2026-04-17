@@ -56,10 +56,7 @@ export default function AnalyticsPage() {
   const [email, setEmail] = useState("");
 
   return (
-    <div
-      className="mx-auto max-w-5xl space-y-6"
-      style={{ opacity: 0, animation: "fade-in 0.5s ease-out forwards" }}
-    >
+    <div className="mx-auto max-w-5xl space-y-6">
       <div className="flex flex-col gap-2">
         <div className="inline-flex items-center gap-2 w-fit rounded-full border border-border/60 bg-secondary/30 px-3 py-1 text-xs text-muted-foreground backdrop-blur">
           <Sparkles className="h-3.5 w-3.5 text-indigo-500" />
