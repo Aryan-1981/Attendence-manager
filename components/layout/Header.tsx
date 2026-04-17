@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { toasts } from "@/lib/toasts";
+import { fuzzyScore, fuzzyFilterSort, highlightByIndices } from "@/lib/fuzzy";
+import { useLocalStorageState } from "@/hooks/useLocalStorageState";
 
 const routeTitles: Record<string, { title: string; breadcrumb: string }> = {
   "/dashboard": { title: "Dashboard", breadcrumb: "Home / Dashboard" },
@@ -53,6 +55,8 @@ export function Header() {
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement | null>(null);
+
+  const [recentIds, setRecentIds] = useLocalStorageState<string[]>("attendtrack.cmdk.recent", []);
 
   const pageItems: CommandItem[] = useMemo(
     () => [
@@ -128,25 +132,60 @@ export function Header() {
       },
     }));
   }, []);
+  const allItems = useMemo(() => {
+    const uniq = new Map<string, CommandItem>();
+    for (const item of [...pageItems, ...actionItems, ...studentItems]) uniq.set(item.id, item);
+    return Array.from(uniq.values());
+  }, [pageItems, actionItems, studentItems]);
 
-  const allItems = useMemo(() => [...pageItems, ...actionItems, ...studentItems], [pageItems, actionItems, studentItems]);
+  const recentItems = useMemo(() => {
+    const byId = new Map(allItems.map((i) => [i.id, i] as const));
+    return recentIds.map((id) => byId.get(id)).filter(Boolean) as CommandItem[];
+  }, [allItems, recentIds]);
 
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const q = query.trim();
     if (!q) return allItems;
-    return allItems.filter((i) => {
-      const hay = `${i.label} ${i.keywords ?? ""}`.toLowerCase();
-      return hay.includes(q);
-    });
+    return fuzzyFilterSort(allItems, q, (i) => `${i.label} ${i.keywords ?? ""}`);
   }, [allItems, query]);
 
-  const groups = useMemo(() => {
-    const g: Record<string, CommandItem[]> = { Pages: [], Actions: [], Students: [] };
-    for (const item of filtered) g[item.group].push(item);
-    return g as { Pages: CommandItem[]; Actions: CommandItem[]; Students: CommandItem[] };
-  }, [filtered]);
+  const flatForNav = useMemo(() => {
+    if (!query.trim() && recentItems.length) {
+      const rest = allItems.filter((i) => !recentItems.some((r) => r.id === i.id));
+      return [...recentItems, ...rest];
+    }
+    return filtered;
+  }, [allItems, filtered, query, recentItems]);
 
-  const flatForNav = useMemo(() => filtered, [filtered]);
+  const groups = useMemo(() => {
+    const q = query.trim();
+    const g: Record<string, CommandItem[]> = { Recent: [], Pages: [], Actions: [], Students: [] };
+
+    if (!q) {
+      g.Recent = recentItems;
+      for (const item of allItems) {
+        if (recentItems.some((r) => r.id === item.id)) continue;
+        g[item.group].push(item);
+      }
+      return g as { Recent: CommandItem[]; Pages: CommandItem[]; Actions: CommandItem[]; Students: CommandItem[] };
+    }
+
+    for (const item of filtered) g[item.group].push(item);
+    return g as { Recent: CommandItem[]; Pages: CommandItem[]; Actions: CommandItem[]; Students: CommandItem[] };
+  }, [allItems, filtered, query, recentItems]);
+
+  const activeItem = flatForNav[activeIndex];
+  const activeId = activeItem ? `cmdk-item-${activeItem.id}` : undefined;
+
+  const selectItem = (item?: CommandItem) => {
+    if (!item) return;
+    setRecentIds((prev) => {
+      const next = [item.id, ...prev.filter((x) => x !== item.id)].slice(0, 8);
+      return next;
+    });
+    item.onSelect();
+    setOpen(false);
+  };
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -165,20 +204,24 @@ export function Header() {
 
       if (e.key === "ArrowDown") {
         e.preventDefault();
-        setActiveIndex((v) => Math.min(v + 1, Math.max(0, flatForNav.length - 1)));
+        setActiveIndex((v) => {
+        const max = Math.max(0, flatForNav.length - 1);
+        if (max == 0) return 0;
+        return v >= max ? 0 : v + 1;
+      });
       }
 
       if (e.key === "ArrowUp") {
         e.preventDefault();
-        setActiveIndex((v) => Math.max(v - 1, 0));
+        setActiveIndex((v) => {
+        const max = Math.max(0, flatForNav.length - 1);
+        if (max == 0) return 0;
+        return v <= 0 ? max : v - 1;
+      });
       }
-
       if (e.key === "Enter") {
         e.preventDefault();
-        const item = flatForNav[activeIndex];
-        if (!item) return;
-        item.onSelect();
-        setOpen(false);
+        selectItem(flatForNav[activeIndex]);
       }
     };
 
@@ -340,17 +383,27 @@ export function Header() {
                 }}
                 placeholder="Type a command or search…"
                 className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-0 h-9"
+                role="combobox"
+                aria-expanded={open}
+                aria-controls="cmdk-list"
+                aria-activedescendant={activeId}
               />
             </div>
           </div>
 
-          <div className="max-h-[380px] overflow-y-auto p-2">
+          <div id="cmdk-list" role="listbox" className="max-h-[380px] overflow-y-auto p-2 cmdk-scrollfade">
             {filtered.length === 0 ? (
-              <div className="p-6 text-sm text-muted-foreground">No results.</div>
+              <div className="p-7">
+                <div className="text-sm font-medium">No results</div>
+                <div className="mt-1 text-xs text-muted-foreground">
+                  Try <span className="font-mono">export</span>, <span className="font-mono">attendance</span>, or a student name.
+                </div>
+              </div>
             ) : (
               <div className="space-y-2">
                 {(
                   [
+                    ["Recent", (groups as any).Recent],
                     ["Pages", groups.Pages],
                     ["Actions", groups.Actions],
                     ["Students", groups.Students],
@@ -363,18 +416,18 @@ export function Header() {
                         {label}
                       </div>
                       <div className="space-y-1">
-                        {items.map((item) => {
+                        {items.map((item: CommandItem) => {
                           const idx = flatForNav.findIndex((i) => i.id === item.id);
                           const active = idx === activeIndex;
                           return (
                             <button
+                              id={`cmdk-item-${item.id}`}
+                              role="option"
+                              aria-selected={active}
                               key={item.id}
                               type="button"
                               onMouseEnter={() => setActiveIndex(idx)}
-                              onClick={() => {
-                                item.onSelect();
-                                setOpen(false);
-                              }}
+                              onClick={() => selectItem(item)}
                               className={cn(
                                 "w-full text-left px-3 py-2 rounded-xl flex items-center justify-between",
                                 "transition-colors",
