@@ -2,35 +2,35 @@
 
 import { UserPlus, Download, QrCode, CalendarCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import { toasts } from "@/lib/toasts";
 
 const actions = [
   {
     label: "Mark Attendance",
     icon: CalendarCheck,
     color: "bg-indigo-500 hover:bg-indigo-600",
-    onClick: () => toast.success("Attendance marking started"),
+    onClick: () => toasts.comingSoon("Attendance marking"),
   },
   {
     label: "Add Student",
     icon: UserPlus,
     color: "bg-emerald-500 hover:bg-emerald-600",
-    onClick: () => toast.success("Add student form opened"),
+    onClick: () => toasts.comingSoon("Add student"),
   },
   {
     label: "Export Report",
     icon: Download,
     color: "bg-amber-500 hover:bg-amber-600",
     onClick: () => {
-      toast.loading("Exporting report...", { duration: 2000 });
-      setTimeout(() => toast.success("Report exported successfully"), 2000);
+      const id = toasts.exportStarted("Report export");
+      setTimeout(() => toasts.exportSuccess(id, "Report export"), 1200);
     },
   },
   {
     label: "Scan QR",
     icon: QrCode,
     color: "bg-violet-500 hover:bg-violet-600",
-    onClick: () => toast("QR Scanner — Coming Soon"),
+    onClick: () => toasts.comingSoon("QR Scanner"),
   },
 ];
 

@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { BellRing, BarChart3, Sparkles, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { toasts } from "@/lib/toasts";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -119,12 +120,10 @@ export default function AnalyticsPage() {
               className="w-full gap-2 bg-indigo-500 hover:bg-indigo-600 text-white"
               onClick={() => {
                 if (!email.trim()) {
-                  toast.error("Please enter an email");
+                  toasts.validationError("Enter an email address to join the waitlist.");
                   return;
                 }
-                toast.success("You’re on the list", {
-                  description: "We’ll email you as soon as analytics is available.",
-                });
+                toast.success("You’re on the list", { description: "We’ll email you when analytics launches." });
                 setEmail("");
               }}
             >
